@@ -1,0 +1,83 @@
+### ============================================================
+### Studi Kasus 8 — Generator Kalimat Pembuka Email / Surat
+### Gunakan dengan ekstensi REST Client (VS Code) atau HTTPie
+### ============================================================
+
+@baseUrl = http://localhost:5000
+
+### 1. Generate kalimat pembuka — Surat Lamaran (Formal)
+POST {{baseUrl}}/openers/generate
+Content-Type: application/json
+
+{
+  "letter_type": "lamaran",
+  "recipient": "Bapak Andi Wijaya, S.T., M.T.",
+  "context": "Melamar posisi Software Engineer di PT Teknologi Maju",
+  "tone": "formal"
+}
+
+###
+
+### 2. Generate kalimat pembuka — Surat Undangan (Semi-Formal)
+POST {{baseUrl}}/openers/generate
+Content-Type: application/json
+
+{
+  "letter_type": "undangan",
+  "recipient": "Ibu Dr. Sari Dewi",
+  "context": "Mengundang sebagai pembicara utama pada Seminar Nasional Teknologi 2026",
+  "tone": "semi-formal"
+}
+
+###
+
+### 3. Generate kalimat pembuka — Surat Keluhan (Formal)
+POST {{baseUrl}}/openers/generate
+Content-Type: application/json
+
+{
+  "letter_type": "keluhan",
+  "recipient": "Kepala Layanan Pelanggan PT Solusi Digital",
+  "context": "Produk yang diterima rusak dan tidak sesuai dengan spesifikasi pesanan",
+  "tone": "formal"
+}
+
+###
+
+### 4. Generate kalimat pembuka — Surat Penawaran (Persuasif)
+POST {{baseUrl}}/openers/generate
+Content-Type: application/json
+
+{
+  "letter_type": "penawaran",
+  "recipient": "Direktur Pengadaan PT Maju Bersama",
+  "context": "Menawarkan solusi manajemen inventori berbasis cloud untuk efisiensi operasional",
+  "tone": "persuasif"
+}
+
+###
+
+### 5. Ambil semua hasil (tanpa filter)
+GET {{baseUrl}}/openers
+
+###
+
+### 6. Filter berdasarkan jenis surat — lamaran
+GET {{baseUrl}}/openers?type=lamaran
+
+###
+
+### 7. Filter berdasarkan jenis surat — penawaran
+GET {{baseUrl}}/openers?type=penawaran
+
+###
+
+### 8. Filter berdasarkan jenis surat — keluhan
+GET {{baseUrl}}/openers?type=keluhan
+
+###
+
+### 9. Filter berdasarkan jenis surat — undangan
+GET {{baseUrl}}/openers?type=undangan
+
+###

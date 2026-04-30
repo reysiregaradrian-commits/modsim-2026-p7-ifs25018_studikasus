@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpeningCraft — Generator Kalimat Pembuka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:        #0f0e0d;
+    --ink-muted:  #6b6560;
+    --parchment:  #f7f3ed;
+    --cream:      #faf8f4;
+    --gold:       #c9933a;
+    --gold-light: #e8b96a;
+    --gold-pale:  #f5e9d3;
+    --rust:       #8b3a2a;
+    --sage:       #4a6650;
+    --border:     #e0d8cc;
+    --shadow:     rgba(15,14,13,0.08);
+    --radius:     14px;
+    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+
+  header {
+    padding: 52px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .header-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.1;
+    color: var(--ink);
+  }
+
+  header h1 em { font-style: italic; color: var(--gold); }
+
+  .header-sub {
+    font-size: 15px;
+    color: var(--ink-muted);
+    max-width: 480px;
+    line-height: 1.6;
+    margin-top: 4px;
+  }
+
+  .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+  @media (max-width: 720px) { .layout { grid-template-columns: 1fr; } }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title svg { flex-shrink: 0; }
+
+  .form-group { margin-bottom: 18px; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 6px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--cream);
+    transition: border-color var(--transition), box-shadow var(--transition);
+    outline: none;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,147,58,0.12);
+    background: #fff;
+  }
+
+  textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chip {
+    padding: 6px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    cursor: pointer;
+    background: var(--cream);
+    transition: all var(--transition);
+    user-select: none;
+  }
+
+  .chip:hover { border-color: var(--gold-light); color: var(--ink); }
+
+  .chip.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(201,147,58,0.3);
+  }
+
+  .btn-generate {
+    width: 100%;
+    padding: 13px 20px;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-generate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,147,58,0.15), transparent);
+    opacity: 0;
+    transition: opacity var(--transition);
+  }
+
+  .btn-generate:hover { background: #1e1c1a; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(15,14,13,0.2); }
+  .btn-generate:hover::after { opacity: 1; }
+  .btn-generate:active { transform: translateY(0); }
+  .btn-generate:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+
+  .btn-generate.loading .spinner { display: block; }
+  .btn-generate.loading .btn-text { opacity: 0.7; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .results-meta {
+    font-size: 12px;
+    color: var(--ink-muted);
+    background: var(--gold-pale);
+    padding: 4px 10px;
+    border-radius: 999px;
+  }
+
+  .openers-grid { display: flex; flex-direction: column; gap: 12px; }
+
+  .opener-item {
+    background: var(--parchment);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 10px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: all var(--transition);
+    animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .opener-item:hover {
+    border-left-color: var(--rust);
+    background: #fff;
+    box-shadow: 0 4px 16px var(--shadow);
+    transform: translateX(3px);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .opener-num {
+    width: 28px; height: 28px;
+    background: var(--gold);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .opener-text { flex: 1; font-size: 14.5px; line-height: 1.65; color: var(--ink); }
+
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    cursor: pointer;
+    transition: all var(--transition);
+    flex-shrink: 0;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .copy-btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .copy-btn.copied { background: var(--sage); color: #fff; border-color: var(--sage); }
+
+  #history-section { margin-top: 52px; }
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .section-divider h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    white-space: nowrap;
+  }
+
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+
+  .filter-label { font-size: 12px; color: var(--ink-muted); font-weight: 500; }
+
+  .filter-chip {
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: #fff;
+    color: var(--ink-muted);
+  }
+
+  .filter-chip:hover { border-color: var(--gold); color: var(--gold); }
+  .filter-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .history-item {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: box-shadow var(--transition);
+  }
+
+  .history-item:hover { box-shadow: 0 4px 20px var(--shadow); }
+
+  .history-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--transition);
+  }
+
+  .history-item.open .history-header { border-bottom-color: var(--border); }
+
+  .type-badge {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .badge-lamaran   { background: #dbeafe; color: #1e40af; }
+  .badge-undangan  { background: #dcfce7; color: #166534; }
+  .badge-keluhan   { background: #fee2e2; color: #991b1b; }
+  .badge-penawaran { background: #fef9c3; color: #854d0e; }
+
+  .history-recipient { font-weight: 600; font-size: 14px; flex: 1; }
+  .history-date { font-size: 12px; color: var(--ink-muted); }
+  .history-chevron { transition: transform var(--transition); color: var(--ink-muted); }
+  .history-item.open .history-chevron { transform: rotate(180deg); }
+
+  .history-body { padding: 16px 20px; display: none; }
+  .history-item.open .history-body { display: block; }
+
+  .history-context {
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--cream);
+    border-radius: 8px;
+    border-left: 3px solid var(--border);
+  }
+
+  .history-openers { display: flex; flex-direction: column; gap: 8px; }
+
+  .history-opener {
+    font-size: 13.5px;
+    padding: 10px 14px;
+    background: var(--parchment);
+    border-radius: 8px;
+    line-height: 1.6;
+    border-left: 2px solid var(--gold-light);
+  }
+
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--ink-muted); }
+  .empty-state svg { margin-bottom: 12px; opacity: 0.3; }
+  .empty-state p { font-size: 14px; }
+
+  #toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    background: var(--ink);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+    z-index: 999;
+    max-width: 320px;
+  }
+
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  .error-banner {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  .deco-line {
+    width: 48px; height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 2px;
+    margin: 8px 0 4px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <span class="header-eyebrow">✦ Studi Kasus 8 — Pemodelan & Simulasi 2026</span>
+    <h1>Opening<em>Craft</em></h1>
+    <div class="deco-line"></div>
+    <p class="header-sub">Generator kalimat pembuka profesional untuk surat & email — didukung AI untuk setiap konteks dan gaya bahasa.</p>
+  </header>
+
+  <div class="layout">
+
+    <div class="card">
+      <div class="card-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Buat Kalimat Pembuka
+      </div>
+
+      <div id="error-banner" class="error-banner"></div>
+
+      <div class="form-group">
+        <label>Jenis Surat</label>
+        <div class="chip-group" id="type-chips">
+          <span class="chip" data-value="lamaran">📄 Lamaran</span>
+          <span class="chip" data-value="undangan">🎫 Undangan</span>
+          <span class="chip" data-value="keluhan">📢 Keluhan</span>
+          <span class="chip" data-value="penawaran">💼 Penawaran</span>
+        </div>
+        <input type="hidden" id="letter-type" value="" />
+      </div>
+
+      <div class="form-group">
+        <label>Nama / Jabatan Penerima</label>
+        <input type="text" id="recipient" placeholder="cth: Bapak Andi Wijaya, S.T." />
+      </div>
+
+      <div class="form-group">
+        <label>Konteks / Tujuan Surat</label>
+        <textarea id="context" placeholder="cth: Melamar posisi Software Engineer di PT Teknologi Maju..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Gaya Bahasa</label>
+        <select id="tone">
+          <option value="formal">Formal — Sangat profesional</option>
+          <option value="semi-formal">Semi-formal — Ramah & sopan</option>
+          <option value="casual">Casual — Santai tapi tetap sopan</option>
+          <option value="persuasif">Persuasif — Meyakinkan & antusias</option>
+        </select>
+      </div>
+
+      <button class="btn-generate" id="generate-btn" onclick="generateOpeners()">
+        <div class="spinner"></div>
+        <span class="btn-text">✦ Generate Kalimat Pembuka</span>
+      </button>
+    </div>
+
+    <div class="card" id="results-card" style="display:none;">
+      <div class="results-header">
+        <div class="card-title" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Hasil Generate
+        </div>
+        <span class="results-meta" id="results-count">0 pilihan</span>
+      </div>
+      <div class="openers-grid" id="openers-grid"></div>
+    </div>
+
+    <div class="card" id="empty-card">
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <p>Hasil generate akan<br/>muncul di sini</p>
+      </div>
+    </div>
+
+  </div>
+
+  <section id="history-section">
+    <div class="section-divider">
+      <h2>Riwayat Generate</h2>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label">Filter:</span>
+      <span class="filter-chip active" data-filter="">Semua</span>
+      <span class="filter-chip" data-filter="lamaran">Lamaran</span>
+      <span class="filter-chip" data-filter="undangan">Undangan</span>
+      <span class="filter-chip" data-filter="keluhan">Keluhan</span>
+      <span class="filter-chip" data-filter="penawaran">Penawaran</span>
+    </div>
+
+    <div id="history-list"></div>
+  </section>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API = '';
+  let activeFilter = '';
+
+  document.querySelectorAll('#type-chips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('#type-chips .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      document.getElementById('letter-type').value = chip.dataset.value;
+    });
+  });
+
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.dataset.filter;
+      loadHistory(activeFilter);
+    });
+  });
+
+  async function generateOpeners() {
+    const letterType = document.getElementById('letter-type').value;
+    const recipient  = document.getElementById('recipient').value.trim();
+    const context    = document.getElementById('context').value.trim();
+    const tone       = document.getElementById('tone').value;
+    const errBanner  = document.getElementById('error-banner');
+
+    errBanner.style.display = 'none';
+
+    if (!letterType) { showError('Pilih jenis surat terlebih dahulu.'); return; }
+    if (!recipient)  { showError('Nama / jabatan penerima harus diisi.'); return; }
+    if (!context || context.length < 5) { showError('Konteks minimal 5 karakter.'); return; }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API}/openers/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ letter_type: letterType, recipient, context, tone }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showError(data.error || 'Terjadi kesalahan pada server.');
+        return;
+      }
+
+      renderOpeners(data.openers);
+      showToast('✦ Kalimat pembuka berhasil di-generate!');
+      loadHistory(activeFilter);
+
+    } catch (err) {
+      showError('Tidak dapat terhubung ke server. Pastikan backend berjalan.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function renderOpeners(openers) {
+    const grid        = document.getElementById('openers-grid');
+    const resultsCard = document.getElementById('results-card');
+    const emptyCard   = document.getElementById('empty-card');
+    const countEl     = document.getElementById('results-count');
+
+    grid.innerHTML = '';
+    openers.forEach((opener, i) => {
+      const el = document.createElement('div');
+      el.className = 'opener-item';
+      el.style.animationDelay = `${i * 0.07}s`;
+      el.innerHTML = `
+        <div class="opener-num">${i + 1}</div>
+        <div class="opener-text">${escHtml(opener.content)}</div>
+        <button class="copy-btn" onclick="copyText(this, '${escAttr(opener.content)}')">Salin</button>
+      `;
+      grid.appendChild(el);
+    });
+
+    countEl.textContent = `${openers.length} pilihan`;
+    resultsCard.style.display = 'flex';
+    resultsCard.style.flexDirection = 'column';
+    emptyCard.style.display = 'none';
+  }
+
+  async function loadHistory(filterType = '') {
+    const list = document.getElementById('history-list');
+    const url  = filterType ? `${API}/openers?type=${filterType}` : `${API}/openers`;
+
+    try {
+      const res  = await fetch(url);
+      const data = await res.json();
+
+      if (!data.results || data.results.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>Belum ada riwayat${filterType ? ` untuk jenis <strong>${filterType}</strong>` : ''}.</p>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = data.results.map(req => buildHistoryItem(req)).join('');
+
+      list.querySelectorAll('.history-header').forEach(header => {
+        header.addEventListener('click', () => {
+          header.parentElement.classList.toggle('open');
+        });
+      });
+
+    } catch (err) {
+      list.innerHTML = `<div class="empty-state"><p>Gagal memuat riwayat.</p></div>`;
+    }
+  }
+
+  function buildHistoryItem(req) {
+    const badge = `<span class="type-badge badge-${req.letter_type}">${req.letter_type}</span>`;
+    const date  = new Date(req.created_at).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
+    const openersHtml = req.openers.map((o, i) =>
+      `<div class="history-opener">${i+1}. ${escHtml(o.content)}</div>`
+    ).join('');
+
+    return `
+      <div class="history-item">
+        <div class="history-header">
+          ${badge}
+          <span class="history-recipient">${escHtml(req.recipient)}</span>
+          <span class="history-date">${date}</span>
+          <svg class="history-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="history-body">
+          <div class="history-context">📌 ${escHtml(req.context)}</div>
+          <div class="history-openers">${openersHtml}</div>
+        </div>
+      </div>`;
+  }
+
+  function copyText(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Tersalin';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Salin'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  function setLoading(state) {
+    const btn = document.getElementById('generate-btn');
+    btn.disabled = state;
+    btn.classList.toggle('loading', state);
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-banner');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function escAttr(str) {
+    return String(str).replace(/'/g, "\\'").replace(/\n/g, ' ');
+  }
+
+  loadHistory();
+</script>
+</body>
+</html>
